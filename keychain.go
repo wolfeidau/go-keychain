@@ -137,6 +137,10 @@ var (
 		 kSecAttrAccessible (iOS; also OS X if kSecAttrSynchronizable specified)
 		 kSecAttrAccount
 		 kSecAttrService
+		 kSecAttrServer
+		 kSecAttrProtocol
+		 kSecAttrPort
+		 kSecAttrPath
 	*/
 	SecClassGenericPassword  SecClass = 1
 	SecClassInternetPassword SecClass = 2
@@ -150,6 +154,14 @@ var secClassTypeRef = map[SecClass]C.CFTypeRef{
 }
 
 var (
+	// ServerKey is for kSecAttrServer
+	ServerKey = attrKey(C.CFTypeRef(C.kSecAttrServer))
+	// ProtocolKey is for kSecAttrProtocol
+	ProtocolKey = attrKey(C.CFTypeRef(C.kSecAttrProtocol))
+	// PortKey is for kSecAttrPort
+	PortKey = attrKey(C.CFTypeRef(C.kSecAttrPort))
+	// PathKey is for kSecAttrPath
+	PathKey = attrKey(C.CFTypeRef(C.kSecAttrPath))
 	// ServiceKey is for kSecAttrService
 	ServiceKey = attrKey(C.CFTypeRef(C.kSecAttrService))
 	// LabelKey is for kSecAttrLabel
@@ -231,6 +243,23 @@ var matchTypeRef = map[MatchLimit]C.CFTypeRef{
 	MatchLimitAll: C.CFTypeRef(C.kSecMatchLimitAll),
 }
 
+// Protocols used to covert protocol to kSecAttrProtocol
+var Protocols = map[string]string{
+	"https": CFStringToString(C.CFStringRef(C.kSecAttrProtocolHTTPS)),
+	"http":  CFStringToString(C.CFStringRef(C.kSecAttrProtocolHTTP)),
+	"smtp":  CFStringToString(C.CFStringRef(C.kSecAttrProtocolSMTP)),
+	"pop3":  CFStringToString(C.CFStringRef(C.kSecAttrProtocolPOP3)),
+	"pop3s": CFStringToString(C.CFStringRef(C.kSecAttrProtocolPOP3S)),
+	"socks": CFStringToString(C.CFStringRef(C.kSecAttrProtocolSOCKS)),
+	"imap":  CFStringToString(C.CFStringRef(C.kSecAttrProtocolIMAP)),
+	"imaps": CFStringToString(C.CFStringRef(C.kSecAttrProtocolIMAPS)),
+	"ldap":  CFStringToString(C.CFStringRef(C.kSecAttrProtocolLDAP)),
+	"ldaps": CFStringToString(C.CFStringRef(C.kSecAttrProtocolLDAPS)),
+	"ssh":   CFStringToString(C.CFStringRef(C.kSecAttrProtocolSSH)),
+	"ftp":   CFStringToString(C.CFStringRef(C.kSecAttrProtocolFTP)),
+	"ftps":  CFStringToString(C.CFStringRef(C.kSecAttrProtocolFTPS)),
+}
+
 // ReturnAttributesKey is key type for kSecReturnAttributes
 var ReturnAttributesKey = attrKey(C.CFTypeRef(C.kSecReturnAttributes))
 
@@ -258,6 +287,26 @@ func (k *Item) SetString(key string, s string) {
 	} else {
 		delete(k.attr, key)
 	}
+}
+
+// SetPath sets the Path attribute
+func (k *Item) SetPath(s string) {
+	k.SetString(PathKey, s)
+}
+
+// SetPort sets the Port attribute
+func (k *Item) SetPort(s string) {
+	k.SetString(PortKey, s)
+}
+
+// SetProtocol sets the Protocol attribute
+func (k *Item) SetProtocol(s string) {
+	k.SetString(ProtocolKey, Protocols[s])
+}
+
+// SetServer sets the server attribute
+func (k *Item) SetServer(s string) {
+	k.SetString(ServerKey, s)
 }
 
 // SetService sets the service attribute
